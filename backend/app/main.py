@@ -25,6 +25,24 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+from fastapi.responses import JSONResponse
+import traceback
+from fastapi import Request
+
+@app.middleware("http")
+async def catch_exceptions_middleware(request: Request, call_next):
+    try:
+        return await call_next(request)
+    except Exception as e:
+        tb = traceback.format_exc()
+        return JSONResponse(
+            status_code=500,
+            content={
+                "detail": f"Internal Server Error: {str(e)}",
+                "traceback": tb
+            }
+        )
+
 # Set CORS origins
 if settings.BACKEND_CORS_ORIGINS:
     app.add_middleware(
