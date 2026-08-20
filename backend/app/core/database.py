@@ -30,16 +30,43 @@ def get_db() -> Generator:
     global _db_initialized
     if not _db_initialized:
         try:
+            # 1. Guarantee tables are created
+            Base.metadata.create_all(bind=engine)
+            
+            # 2. Seed default users
+            db_temp = SessionLocal()
             try:
-                from seed import seed_database
-            except ImportError:
-                import sys
-                import os
-                sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
-                from seed import seed_database
-            seed_database()
+                from app.models.user import User
+                from app.core.security import get_password_hash
+                
+                admin = db_temp.query(User).filter(User.email == "admin@quizforge.com").first()
+                if not admin:
+                    admin = User(
+                        email="admin@quizforge.com",
+                        hashed_password=get_password_hash("adminpassword123"),
+                        full_name="Biswa Sarathi Subudhi (Admin)",
+                        role="admin",
+                        is_active=True
+                    )
+                    db_temp.add(admin)
+                    
+                student = db_temp.query(User).filter(User.email == "student@quizforge.com").first()
+                if not student:
+                    student = User(
+                        email="student@quizforge.com",
+                        hashed_password=get_password_hash("studentpassword123"),
+                        full_name="Jane Doe (Student)",
+                        role="student",
+                        is_active=True
+                    )
+                    db_temp.add(student)
+                db_temp.commit()
+            except Exception as e:
+                print(f"Error seeding default users: {e}")
+            finally:
+                db_temp.close()
         except Exception as e:
-            print(f"Database seeding bypass/error: {e}")
+            print(f"Error initializing database: {e}")
         _db_initialized = True
 
     try:
