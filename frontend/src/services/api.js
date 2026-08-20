@@ -1,8 +1,22 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 
+const getBaseURL = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  if (typeof window !== "undefined") {
+    const origin = window.location.origin;
+    if (origin.includes("localhost") || origin.includes("127.0.0.1")) {
+      return "http://localhost:8000/api/v1";
+    }
+    return `${origin}/api/v1`;
+  }
+  return "/api/v1";
+};
+
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "/api/v1" : "http://localhost:8000/api/v1"),
+  baseURL: getBaseURL(),
   headers: {
     "Content-Type": "application/json",
   },
