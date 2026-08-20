@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     PROJECT_NAME: str = "QuizForge"
     API_V1_STR: str = "/api/v1"
-    SECRET_KEY: str
+    SECRET_KEY: str = "qf_super_secret_production_encryption_key_hash_salt_2026"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 120
 
@@ -17,7 +17,7 @@ class Settings(BaseSettings):
         "http://localhost:8000",
     ]
 
-    DATABASE_URL: str
+    DATABASE_URL: str = "sqlite:///./quizforge.db"
 
     # First admin seed details
     FIRST_SUPERUSER_EMAIL: str = "admin@quizforge.com"
