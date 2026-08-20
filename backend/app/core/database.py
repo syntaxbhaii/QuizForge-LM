@@ -23,7 +23,25 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
+_db_initialized = False
+
+
 def get_db() -> Generator:
+    global _db_initialized
+    if not _db_initialized:
+        try:
+            try:
+                from seed import seed_database
+            except ImportError:
+                import sys
+                import os
+                sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+                from seed import seed_database
+            seed_database()
+        except Exception as e:
+            print(f"Database seeding bypass/error: {e}")
+        _db_initialized = True
+
     try:
         db = SessionLocal()
         yield db
