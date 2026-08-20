@@ -30,13 +30,20 @@ def get_db() -> Generator:
     global _db_initialized
     if not _db_initialized:
         try:
-            # 1. Guarantee tables are created
+            # 1. Import all models first so SQLAlchemy registers them in the metadata
+            from app.models.user import User
+            from app.models.category import Category
+            from app.models.quiz import Quiz
+            from app.models.question import Question, Option
+            from app.models.attempt import Attempt, AttemptAnswer
+            from app.models.certificate import Certificate
+
+            # 2. Guarantee tables are created
             Base.metadata.create_all(bind=engine)
             
-            # 2. Seed default users
+            # 3. Seed default users
             db_temp = SessionLocal()
             try:
-                from app.models.user import User
                 from app.core.security import get_password_hash
                 
                 admin = db_temp.query(User).filter(User.email == "admin@quizforge.com").first()
