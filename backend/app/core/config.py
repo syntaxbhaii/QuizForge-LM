@@ -1,3 +1,4 @@
+import os
 from typing import List, Union
 from pydantic import AnyHttpUrl, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -17,7 +18,7 @@ class Settings(BaseSettings):
         "http://localhost:8000",
     ]
 
-    DATABASE_URL: str = "sqlite:///./quizforge.db"
+    DATABASE_URL: str = "sqlite:////tmp/quizforge.db" if os.getenv("VERCEL") else "sqlite:///./quizforge.db"
 
     # First admin seed details
     FIRST_SUPERUSER_EMAIL: str = "admin@quizforge.com"
